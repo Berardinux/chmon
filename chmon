@@ -36,6 +36,41 @@ EOF
   fi
 }
 
+function Eject {
+  echo "--   Checking for Disk...   --"
+  disk=$(lsblk | grep sr | cut -d" " -f1)
+  if echo $disk > /dev/null; then
+    if mount | grep sr0; then
+      echo "--     Disk Drive Found    --"
+      echo "--       Disk Mounted       --"
+      eject /dev/$disk
+      echo "--       Disk Ejected       --"
+    else
+      echo "--     Disk Drive Found     --"
+      echo "--     Disk Not Mounted     --"
+    fi
+  else
+    echo "--     No Disk Drive Found     --"
+  fi
+  flashNum=$(($(find /media/berardinux/ -maxdepth 1 -type f -o -type d | wc -l) - 1))
+
+  if ls /media/berardinux > /dev/null; then
+    if [ "$flashNum" -gt 1 ]; then
+      echo "-- There are $flashNum Flash Drives --"
+      umount /media/$USER/*
+      ((flashNum--))
+      echo "-- All Flash Drives Ejected --"
+    else
+      echo "-- There is One Flash Drive --"
+      flash=$(ls /media/berardinux)
+      umount "/media/$USER/"$flash""
+      echo "--   Flash Drive Ejected    --"
+    fi
+  else
+    echo "-- There are no Flash Drives Mounted --"
+  fi
+}
+
 case $input in
   "0")
     nvidia-settings --assign CurrentMetaMode="nvidia-auto-select +0+0 {ForceFullCompositionPipeline=On}"
@@ -58,8 +93,8 @@ case $input in
   "6")
     sound_bar
     ;;
-  "eject")
-    umount "$usb"
+  "-e")
+    Eject
     ;;
   *)
     echo "Boo, That wasn't a option!"
