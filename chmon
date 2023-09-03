@@ -1,0 +1,70 @@
+#!/bin/bash
+
+# Variables
+input="$1"
+pebbleName=$(pactl list | grep -m 1 "Name: alsa_output.usb-ACTIONS_Pebble" | cut -d ' ' -f2)
+headSetName=$(pactl list | grep -m 1 "Name: alsa_output.usb-Corsair_CORSAIR_VIRTUOSO_SE_Wireless_Gaming_Headset" | cut -d ' ' -f2)
+usb=$(ls /media/berardinux)
+
+# Connect to Soundbar speaker!!
+function sound_bar {
+  soundbar_mac="54:15:89:70:13:68"
+  pactl set-default-sink bluez_output.54_15_89_70_13_68.1
+
+  is_connected=$(bluetoothctl << EOF
+  info $Soundbar_mac
+EOF
+  )
+
+  if [[ $is_connected =~ "Connected: yes" ]]; then
+    echo "It is connected"
+  else
+    bluetoothctl << EOF
+    power on
+    scan on
+EOF
+    sleep 5
+    bluetoothctl << EOF
+    pair $soundbar_mac
+    connect $soundbar_mac
+EOF
+    sleep 5
+    bluetoothctl << EOF
+    exit
+EOF
+    echo "Bluetooth connection to Samsung Soundbar established."
+  fi
+}
+
+case $input in
+  "0")
+    nvidia-settings --assign CurrentMetaMode="nvidia-auto-select +0+0 {ForceFullCompositionPipeline=On}"
+    ;;
+  "1")
+    xrandr --output HDMI-0 --off --output DP-4 --mode 2560x1440 --rate 240 --pos 640x2160 --primary --output DP-2 --mode 3840x2160 --rate 155 --pos 0x0
+    ;;
+  "2")
+    xrandr --output HDMI-0 --off --output DP-4 --mode 2560x1440 --rate 240 --pos 0x0 --primary --output DP-2 --off
+    ;;
+  "3")
+    xrandr --output HDMI-0 --mode 3840x2160 --rate 60 --pos 0x0 --primary --output DP-4 --off --output DP-2 --mode 3840x2160 --rate 60 --pos 0x0
+    ;;
+  "4")
+    pactl set-default-sink $pebbleName
+    ;;
+  "5")
+    pactl set-default-sink $headSetName
+    ;;
+  "6")
+    sound_bar
+    ;;
+  "eject")
+    umount "$usb"
+    ;;
+  *)
+    echo "Boo, That wasn't a option!"
+    ;;
+esac
+
+
+
