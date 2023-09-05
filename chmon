@@ -76,12 +76,14 @@ case $input in
     nvidia-settings --assign CurrentMetaMode="nvidia-auto-select +0+0 {ForceFullCompositionPipeline=On}"
     ;;
   "1")
+    xrandr --output DP-2 --mode 1920x1080
     xrandr --output HDMI-0 --off --output DP-4 --mode 2560x1440 --rate 240 --pos 640x2160 --primary --output DP-2 --mode 3840x2160 --rate 155 --pos 0x0
     ;;
   "2")
     xrandr --output HDMI-0 --off --output DP-4 --mode 2560x1440 --rate 240 --pos 0x0 --primary --output DP-2 --off
     ;;
   "3")
+    xrandr --output DP-2 --mode 1920x1080
     xrandr --output HDMI-0 --mode 3840x2160 --rate 60 --pos 0x0 --primary --output DP-4 --off --output DP-2 --mode 3840x2160 --rate 60 --pos 0x0
     ;;
   "4")
